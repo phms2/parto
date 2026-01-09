@@ -1,326 +1,523 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>O Game Plan Estratégico | Hugo Dubgod Sports</title>
+    <title>Birth Plan - Fernanda & Pedro</title>
+    <!-- Tailwind CSS with Dark Mode Configuration -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#1a1a1a',
+                        darkcard: '#2d2d2d'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- React and ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .sporty-bg {
-            background-color: #f8fafc;
-        }
-        .highlight-accent {
-            color: #059669; /* Verde Esmeralda */
-        }
-        .button-accent {
-             background-color: #059669;
-        }
-        .button-accent:hover {
-             background-color: #047857;
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; color: black !important; }
+            .print-break-inside-avoid { break-inside: avoid; }
+            .shadow-lg { box-shadow: none !important; }
+            .bg-gray-50 { background-color: white !important; }
+            /* Ensure dark mode colors don't print */
+            .dark .bg-gray-900 { background-color: white !important; }
+            .dark .text-white { color: black !important; }
+            .dark .bg-gray-800 { background-color: white !important; border: 1px solid #ddd !important; }
         }
     </style>
 </head>
-<body class="sporty-bg text-gray-800 antialiased">
-    <div class="container mx-auto p-4 md:p-8">
-        
-        <header class="text-center mb-16">
-            <h1 class="text-4xl md:text-6xl font-black tracking-tight text-gray-900 mb-2">O Game Plan Estratégico</h1>
-            <h2 class="text-2xl font-semibold text-gray-600">Hugo Dubgod Sports</h2>
-            <p class="text-lg text-gray-600 max-w-4xl mx-auto mt-4 text-justify">Olá, Hugo. Este é um plano de jogo para capitalizar sua posição única como agente esportivo e personal trainer. Sua dupla identidade é uma oportunidade incrível para criar uma marca forte e crescer nas duas áreas.</p>
-        </header>
+<body class="bg-gray-50 text-slate-800 transition-colors duration-300">
 
-        <section class="mb-16 bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
-            <h2 class="text-3xl font-bold text-center text-gray-900 mb-8">A Oportunidade: Simbiose</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center max-w-5xl mx-auto">
-                <div class="text-center">
-                    <i data-lucide="trophy" class="w-16 h-16 highlight-accent mx-auto mb-4"></i>
-                    <h3 class="text-2xl font-bold mt-4 text-gray-900">Para o Agente Esportivo</h3>
-                    <p class="mt-2 text-gray-600 text-justify">Uma marca forte como treinador aumenta sua credibilidade como agente com atletas e suas famílias.</p>
-                </div>
-                <div class="text-center">
-                    <i data-lucide="dumbbell" class="w-16 h-16 highlight-accent mx-auto mb-4"></i>
-                    <h3 class="text-2xl font-bold mt-4 text-gray-900">Para o Personal Trainer</h3>
-                    <p class="mt-2 text-gray-600 text-justify">Conteúdo com atletas profissionais valida sua expertise como treinador, atraindo clientes de alto nível.</p>
+<div id="root"></div>
+
+<script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // --- ICON COMPONENTS ---
+    const IconWrapper = ({ children, size = 24, className = "" }) => (
+        <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            {children}
+        </svg>
+    );
+
+    const Globe = (props) => <IconWrapper {...props}><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></IconWrapper>;
+    const Printer = (props) => <IconWrapper {...props}><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></IconWrapper>;
+    const CheckSquare = (props) => <IconWrapper {...props}><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></IconWrapper>;
+    const AlertTriangle = (props) => <IconWrapper {...props}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></IconWrapper>;
+    const Baby = (props) => <IconWrapper {...props}><path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 4 .5 5.7 1.6"/><path d="M12 3v-1"/></IconWrapper>;
+    const Info = (props) => <IconWrapper {...props}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></IconWrapper>;
+    const User = (props) => <IconWrapper {...props}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></IconWrapper>;
+    const Eye = (props) => <IconWrapper {...props}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></IconWrapper>;
+    const EyeOff = (props) => <IconWrapper {...props}><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7c.44 0 .87-.03 1.28-.09"/><line x1="2" x2="22" y1="2" y2="22"/></IconWrapper>;
+    const FileText = (props) => <IconWrapper {...props}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></IconWrapper>;
+    const Heart = (props) => <IconWrapper {...props}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5 4.5 1.5-1.5-1-4.5-1-5.5-1-5.5C6.8 3 5 4.92 5 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></IconWrapper>;
+    const Moon = (props) => <IconWrapper {...props}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></IconWrapper>;
+    const Sun = (props) => <IconWrapper {...props}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></IconWrapper>;
+    const Phone = (props) => <IconWrapper {...props}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></IconWrapper>;
+    const X = (props) => <IconWrapper {...props}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></IconWrapper>;
+    const MessageCircle = (props) => <IconWrapper {...props}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></IconWrapper>;
+    // New Hospital Icon
+    const Hospital = (props) => <IconWrapper {...props}><path d="M12 6V2H8"/><path d="m8 8-2.21 1.46a4 4 0 0 0-1.8 3.18L4 22h16l.01-9.36a4 4 0 0 0-1.8-3.18L16 8"/><path d="M12 12v4"/><path d="M10 14h4"/></IconWrapper>;
+
+    const BirthPlanApp = () => {
+        const [globalLang, setGlobalLang] = useState('en');
+        const [activeTab, setActiveTab] = useState('plan');
+        const [showAllLangs, setShowAllLangs] = useState(false);
+        const [checkedItems, setCheckedItems] = useState({});
+        const [darkMode, setDarkMode] = useState(false);
+        const [showContactModal, setShowContactModal] = useState(false);
+
+        const PEDRO_PHONE = "+35677544172";
+        const PEDRO_WHATSAPP = "35677544172";
+
+        // Languages configuration
+        const languages = {
+            en: { label: 'English', flag: '🇬🇧' },
+            pt: { label: 'Português', flag: '🇧🇷' },
+            mt: { label: 'Maltese', flag: '🇲🇹' }
+        };
+
+        const toggleCheck = (id) => {
+            setCheckedItems(prev => ({ ...prev, [id]: !prev[id] }));
+        };
+
+        // --- DATA ---
+        const headerData = {
+            names: "Fernanda Righi Viana & Pedro Henrique Mendes Simplício",
+            dueDate: {
+                en: "Due Date (40w): 18/02/2026",
+                pt: "Data Prevista (40s): 18/02/2026",
+                mt: "Data Mistennija (40ġ): 18/02/2026"
+            },
+            intro: {
+                en: "Hello, we are Fernanda (Mom) and Pedro (Dad). We are very excited to meet our daughter, Flora. This document reflects our preferences for a safe and respectful birth at Mater Dei.",
+                pt: "Olá, somos a Fernanda (Mãe) e o Pedro (Pai). Estamos muito felizes por conhecer a nossa filha, Flora. Este documento reflete as nossas preferências para um parto seguro e respeitoso no Mater Dei.",
+                mt: "Hello, aħna Fernanda (l-Omm) u Pedro (il-Missier). Ninsabu eċċitati ħafna biex niltaqgħu ma' bintha, Flora. Dan id-dokument jirrifletti l-preferenzi tagħna għal twelid sigur u rispettuż f'Mater Dei."
+            }
+        };
+
+        const criticalData = {
+            title: { en: "⚠️ CRITICAL COMMUNICATION", pt: "⚠️ COMUNICAÇÃO CRÍTICA", mt: "⚠️ KOMUNIKAZZJONI KRITIKA" },
+            items: [
+                { id: 'crit_1', en: "I am not fluent in English. In the absence of my partner, I will use Google Translate.", pt: "Não sou fluente em inglês. Na ausência do meu marido, usarei o Google Tradutor.", mt: "M'iniex fluwenti fl-Ingliż. Fin-nuqqas tas-sieħeb tiegħi, se nuża Google Translate." },
+                { id: 'crit_2', en: "Please perform all screenings and exams only when Pedro is present to translate (except emergencies).", pt: "Por favor, realizem triagens e exames apenas quando o Pedro estiver presente para traduzir (exceto emergências).", mt: "Jekk jogħġbok wettaq l-eżamijiet kollha biss meta Pedro jkun preżenti biex jittraduċi (ħlief f'emerġenzi)." },
+                { id: 'crit_3', en: "I may spend nights alone (partner caring for older son). I ask for extra patience.", pt: "Poderei passar as noites sozinha (marido com filho mais velho). Peço paciência extra.", mt: "Nista' nqatta' l-iljieli waħdi. Nitlob paċenzja żejda." }
+            ]
+        };
+
+        const birthPlanSections = [
+            {
+                title: { en: "1. Labour & Delivery", pt: "1. Trabalho de Parto", mt: "1. Il-Ħlas" },
+                icon: <Hospital className="w-5 h-5 text-rose-500" />,
+                items: [
+                    { id: 'bp_1', en: "Environment: Low lights, quiet, own clothes/music.", pt: "Ambiente: Luzes baixas, calmo, roupas próprias e música.", mt: "Ambjent: Dwal baxxi, kwiet, ħwejjeġ/mużika proprja." },
+                    { id: 'bp_2', en: "Mobility: Freedom to move, walk, and use the birth ball.", pt: "Mobilidade: Liberdade de movimento, caminhar e bola de pilates.", mt: "Mobilità: Libertà li niċċaqlaq, nimxi u nuża l-birth ball." },
+                    { id: 'bp_3', en: "Interventions: No routine amniotomy or synthetic oxytocin unless medically necessary.", pt: "Intervenções: Sem ruptura artificial da bolsa ou oxitocina de rotina, salvo necessidade médica.", mt: "Interventi: L-ebda amniotomija ta' rutina jew oxytocin sintetiku sakemm mhux medikament meħtieġ." },
+                    { id: 'bp_4', en: "Pushing: Freedom of position. NO Kristeller Maneuver.", pt: "Expulsivo: Liberdade de posição. SEM Manobra de Kristeller.", mt: "Imbuttar: Libertà tal-pożizzjoni. L-EBDA Manuvra Kristeller." },
+                    { id: 'bp_5', en: "Episiotomy: Not authorized as routine. Only if strictly necessary (with anesthesia).", pt: "Episiotomia: Não autorizada como rotina. Apenas se estritamente necessária (com anestesia).", mt: "Episjotomija: Mhux awtorizzata bħala rutina. Biss jekk strettament meħtieġ (bl-anestesija)." },
+                    { id: 'bp_6', en: "Placenta: Physiological third stage preferred. No routine oxytocin.", pt: "Placenta: Preferência pela saída natural (fisiológica). Sem oxitocina de rotina.", mt: "Plaċenta: Preferuta t-tielet stadju fiżjoloġiku. L-ebda oxytocin ta' rutina." }
+                ]
+            },
+            {
+                title: { en: "2. Pain Management", pt: "2. Gestão da Dor", mt: "2. Ġestjoni tal-Uġigħ" },
+                icon: <AlertTriangle className="w-5 h-5 text-yellow-500" />,
+                items: [
+                    { id: 'pm_1', en: "Preference Order: 1. Natural methods -> 2. Entonox (Gas) -> 3. Pethidine -> 4. Epidural (Last option).", pt: "Ordem de preferência: 1. Métodos naturais -> 2. Entonox (Gás) -> 3. Petidina -> 4. Epidural (Última opção).", mt: "Ordni ta' preferenza: 1. Metodi naturali -> 2. Entonox (Gass) -> 3. Pethidine -> 4. Epidural (L-aħħar għażla)." }
+                ]
+            },
+            {
+                title: { en: "3. Newborn Care (Flora)", pt: "3. Cuidados com a Flora", mt: "3. Kura tat-Tarbija tat-Twelid" },
+                icon: <Baby className="w-5 h-5 text-blue-400" />,
+                items: [
+                    { id: 'nb_1', en: "Golden Hour: Immediate skin-to-skin for at least 1 hour. No interruptions.", pt: "Golden Hour: Pele a pele imediato por pelo menos 1 hora. Sem interrupções.", mt: "Siegħa tad-Deheb: Kuntatt immedjat ġilda ma' ġilda għal mill-inqas siegħa." },
+                    { id: 'nb_2', en: "Cord Clamping: Delayed (wait until pulsing stops).", pt: "Cordão Umbilical: Clampeamento tardio (após parar de pulsar).", mt: "Kurdun taż-Żokra: Ikklampjar tard (stenna sakemm jieqaf jippulsa)." },
+                    { id: 'nb_3', en: "BATHING: DO NOT bathe the baby at the hospital. First bath at home.", pt: "BANHO: NÃO dar banho no hospital. Primeiro banho em casa.", mt: "BANJU: T-TINĦASILX it-tarbija l-isptar. L-ewwel banju d-dar." },
+                    { id: 'nb_4', en: "Vitamin K: Authorized (Injection). BCG: Please consult before administration.", pt: "Vitamina K: Autorizada (Injeção). BCG: Consultar antes de administrar.", mt: "Vitamina K: Awtorizzata (Injezzjoni). BCG: Jekk jogħġbok ikkonsulta qabel l-amministrazzjoni." },
+                    { id: 'nb_5', en: "Feeding: Exclusive breastfeeding. No formula/pacifiers.", pt: "Alimentação: Amamentação exclusiva. Sem fórmula/chupetas.", mt: "Tmigħ: Treddigħ esklussiv. L-ebda formula/pacifiers." },
+                    { id: 'nb_6', en: "Screening: Heel prick test and weighing to be done at home by community midwife.", pt: "Rastreio: Teste do pezinho e pesagem feitos em casa pela parteira comunitária.", mt: "Screening: Test tat-takkuna u l-użin li għandu jsir id-dar." }
+                ]
+            },
+            {
+                title: { en: "4. C-Section (If needed)", pt: "4. Cesariana (Se necessário)", mt: "4. Taqsima Ċ (Jekk meħtieġ)" },
+                icon: <Info className="w-5 h-5 text-purple-500" />,
+                items: [
+                    { id: 'cs_1', en: "Partner present at all times. Arms free. Screen lowered for birth.", pt: "Acompanhante sempre presente. Braços livres. Baixar o campo cirúrgico para ver o nascimento.", mt: "Sieħeb preżenti f'kull ħin. Dirgħajn ħielsa. Skrin imniżżel għat-twelid." }
+                ]
+            }
+        ];
+
+        const packingListSections = [
+            {
+                title: { en: "Flora's Bag (Baby)", pt: "Mala da Flora", mt: "Borża ta' Flora" },
+                items: [
+                    { id: 'f_1', label: "Outfit #1 (The First One - Hand to Nurse)", sub: "Body, Trousers, Onesie, Hat, Socks, Nappy, Blanket" },
+                    { id: 'f_2', label: "4x Change Kits", sub: "Body + Trousers + Onesie + Socks + Hat" },
+                    { id: 'f_3', label: "2x Swaddles (Zipper/Velcro)" },
+                    { id: 'f_4', label: "2x Extra Blankets (1 Warm, 1 Cotton)" },
+                    { id: 'f_5', label: "3x Muslin Squares (Burp cloths)" },
+                    { id: 'f_6', label: "2x Thin Towels" },
+                    { id: 'f_7', label: "20x Newborn Nappies (Size 1)" },
+                    { id: 'f_8', label: "WaterWipes & Cotton Wool" },
+                    { id: 'f_9', label: "Nappy Rash Cream" },
+                    { id: 'f_10', label: "White Noise Machine & Night Light" },
+                    { id: 'f_11', label: "Silicone Breast Pump (Haakaa)" }
+                ]
+            },
+            {
+                title: { en: "Fernanda's Bag (Mom)", pt: "Mala da Fernanda", mt: "Borża ta' Fernanda" },
+                items: [
+                    { id: 'm_1', label: "Peri Bottle (Washing bottle)" },
+                    { id: 'm_2', label: "8x Postpartum Nappies (Always Discreet Black)" },
+                    { id: 'm_3', label: "Ice Pads (Toytastic)" },
+                    { id: 'm_4', label: "Relief Spray/Foam (Frida/Lansinoh)" },
+                    { id: 'm_5', label: "Vaseline & Hemorrhoid Cream" },
+                    { id: 'm_6', label: "3x Comfortable Panties (Extra)" },
+                    { id: 'm_7', label: "Toiletries (Shampoo, Soap, Toothbrush)" },
+                    { id: 'm_8', label: "Hairbrush + Ties" },
+                    { id: 'm_9', label: "Lip Balm (Crucial for Gas & Air)" },
+                    { id: 'm_10', label: "Labour Outfit (Loose shirt)" },
+                    { id: 'm_11', label: "3x Nursing Pyjamas (Dark colours)" },
+                    { id: 'm_12', label: "Warm Socks & Slippers (Shower + Bedroom)" },
+                    { id: 'm_13', label: "Lanolin Cream (Small)" },
+                    { id: 'm_14', label: "Disposable Underpads (5-10 pack)" },
+                    { id: 'm_15', label: "No-rinse Cleanser & Large Cotton Pads" },
+                    { id: 'm_16', label: "Nursing Arm Pillow" }
+                ]
+            },
+            {
+                title: { en: "Documents & Logistics (Pedro)", pt: "Documentos e Pedro", mt: "Dokumenti u Pedro" },
+                items: [
+                    { id: 'd_1', label: "Passports (Yours + Pedro's)" },
+                    { id: 'd_2', label: "Antenatal Notes & Exams" },
+                    { id: 'd_3', label: "Birth Plan (3 printed copies)" },
+                    { id: 'd_4', label: "Snacks (Dates, Nuts, Bars) & Coins" },
+                    { id: 'd_5', label: "Car Seat (Installed)" },
+                    { id: 'd_6', label: "Hot Water Bottle" },
+                    { id: 'd_7', label: "Phone + Long Charger (2m+)" }
+                ]
+            }
+        ];
+
+        // --- COMPONENTS ---
+
+        const ContactModal = () => (
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
+                <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-2xl max-w-sm w-full relative animate-in fade-in zoom-in duration-200">
+                    <button 
+                        onClick={() => setShowContactModal(false)}
+                        className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    >
+                        <X size={24} />
+                    </button>
+                    
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 text-center">Contact Pedro</h3>
+                    
+                    <div className="space-y-4">
+                        <a 
+                            href={`tel:${PEDRO_PHONE}`}
+                            className="flex items-center justify-center gap-3 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition-colors text-lg"
+                        >
+                            <Phone size={24} /> Call Now
+                        </a>
+                        
+                        <a 
+                            href={`https://wa.me/${PEDRO_WHATSAPP}`}
+                            target="_blank"
+                            className="flex items-center justify-center gap-3 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition-colors text-lg"
+                        >
+                            <MessageCircle size={24} /> WhatsApp
+                        </a>
+
+                        <a 
+                            href={`skype:${PEDRO_PHONE}?call`}
+                            className="flex items-center justify-center gap-3 w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-4 rounded-lg transition-colors text-lg"
+                        >
+                            <span className="font-bold text-2xl">S</span> Skype Call
+                        </a>
+                    </div>
+                    <p className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                        {PEDRO_PHONE}
+                    </p>
                 </div>
             </div>
-        </section>
+        );
 
-        <section class="mb-16 bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
-            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Os 3 Pilares da Proposta</h2>
-            <div class="space-y-8">
+        const PlanItem = ({ item }) => {
+            const [isExpanded, setIsExpanded] = useState(false);
+
+            // MODE 1: SHOW ALL LANGUAGES (PRINT MODE)
+            if (showAllLangs) {
+                return (
+                    <div className="mb-4 p-4 rounded-lg border border-gray-200 bg-white shadow-sm print-break-inside-avoid">
+                        <div className="font-bold text-gray-900 mb-1 text-lg">🇬🇧 {item.en}</div>
+                        <div className="text-gray-700 mb-1">🇧🇷 {item.pt}</div>
+                        <div className="text-gray-500 italic text-sm">🇲🇹 {item.mt}</div>
+                    </div>
+                );
+            }
+
+            // MODE 2: INTERACTIVE TOGGLE
+            return (
+                <div
+                    className={`mb-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                        isExpanded 
+                            ? 'bg-indigo-50 border-indigo-200 dark:bg-indigo-900/30 dark:border-indigo-800' 
+                            : 'bg-white border-gray-100 hover:border-indigo-300 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-indigo-600'
+                    }`}
+                    onClick={() => setIsExpanded(!isExpanded)}
+                >
+                    <div className="flex justify-between items-start">
+                        <p className={`font-medium ${
+                            isExpanded ? 'mb-2 text-indigo-900 dark:text-indigo-200' : 'text-gray-800 dark:text-gray-100'
+                        }`}>
+                            {item[globalLang]}
+                        </p>
+                        <button className="text-gray-400 hover:text-indigo-600 dark:text-gray-500 dark:hover:text-indigo-400 ml-2 mt-1">
+                            <Globe size={16} />
+                        </button>
+                    </div>
+
+                    {isExpanded && (
+                        <div className="mt-2 pt-2 border-t border-indigo-100 dark:border-indigo-800/50 space-y-2 text-sm text-gray-600 dark:text-gray-300">
+                            {Object.keys(languages).map((langKey) => {
+                                if (langKey === globalLang) return null;
+                                return (
+                                    <div key={langKey} className="flex gap-2">
+                                        <span className="shrink-0 pt-0.5">{languages[langKey].flag}</span>
+                                        <span>{item[langKey]}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        return (
+            <div className={`min-h-screen font-sans pb-10 transition-colors duration-300 ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
                 
-                <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">1. Estratégia e Desenvolvimento</h3>
-                    <p class="text-gray-600 mb-6 text-justify">A base de tudo. A gente define a identidade e a estratégia para suas duas marcas, para você focar no que realmente importa.</p>
-                    <ul class="space-y-3 text-gray-700">
-                        <li class="flex items-start"><i data-lucide="compass" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i><span><strong>Sessão de Estratégia de Marca:</strong> Sessão de 90-120 min para definir a direção da marca. <span class="font-semibold highlight-accent">€350-€500</span></span></li>
-                        <li class="flex items-start"><i data-lucide="lightbulb" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i><span><strong>Workshop de Descoberta de Marca:</strong> Definição de USP, público, valores e voz.</span></li>
-                        <li class="flex items-start"><i data-lucide="book-marked" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i><span><strong>Guia de Identidade de Marca:</strong> Uso de logo, cores e mensagens.</span></li>
-                        <li class="flex items-start"><i data-lucide="message-square-quote" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i><span><strong>Estrutura de Mensagens:</strong> Criação de slogans e "elevator pitch".</span></li>
-                        <li class="flex items-start"><i data-lucide="briefcase" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i><span><strong>Consultoria em Gestão e Liderança:</strong> Otimização do negócio e liderança.</span></li>
-                        <li class="flex items-start"><i data-lucide="mic" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i><span><strong>Comunicação Profissional:</strong> Treino em Inglês para negócios e Oratória.</span></li>
-                        <li class="flex items-start"><i data-lucide="radio" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i><span><strong>Media Training:</strong> Preparação para interações com a imprensa.</span></li>
-                    </ul>
-                </div>
+                {showContactModal && <ContactModal />}
 
-                <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">2. Conteúdo e Copywriting</h3>
-                    <p class="text-gray-600 mb-6 text-justify">Design e texto precisam andar juntos. Crio textos que conectam com seu público e geram resultados.</p>
-                    <ul class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700">
-                        <li class="flex items-start"><i data-lucide="thumbs-up" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i><span>Legendas para Redes Sociais</span></li>
-                        <li class="flex items-start"><i data-lucide="globe" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i><span>Textos para Website</span></li>
-                        <li class="flex items-start"><i data-lucide="mail" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i><span>Conteúdo para Newsletters</span></li>
-                        <li class="flex items-start"><i data-lucide="file-text" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i><span>Comunicados de Imprensa</span></li>
-                    </ul>
-                </div>
+                {/* --- TOP BAR (NO PRINT) --- */}
+                <div className="sticky top-0 bg-white dark:bg-gray-800 shadow-md p-3 z-50 no-print transition-colors duration-300">
+                    <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
 
-                <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">3. Gestão de Redes Sociais</h3>
-                    <p class="text-gray-600 mb-6 text-justify">Consistência é tudo. Garanto que suas marcas estejam sempre ativas, crescendo e gerando negócios.</p>
-                     <ul class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700">
-                        <li class="flex items-start"><i data-lucide="goal" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i><span>Estratégia Multiplataforma</span></li>
-                        <li class="flex items-start"><i data-lucide="calendar-days" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i><span>Calendário de Conteúdo</span></li>
-                        <li class="flex items-start"><i data-lucide="users" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i><span>Gestão de Comunidade</span></li>
-                        <li class="flex items-start"><i data-lucide="trending-up" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i><span>Análise e Relatórios</span></li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-        
-        <section class="mb-16 bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
-            <div class="flex flex-col gap-12">
-                <div class="text-center">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-4">O Seu Investimento</h2>
-                    <div class="max-w-4xl mx-auto space-y-4 text-gray-600 text-left bg-gray-50 p-6 rounded-xl border border-gray-200">
-                        <p class="text-justify"><i data-lucide="info" class="inline w-5 h-5 mr-2 highlight-accent"></i><strong>Valor da Parceria:</strong> Serviços pontuais resolvem o agora, mas a consistência transforma a marca. A parceria trimestral tem o melhor custo-benefício, com um <strong class="highlight-accent">preço por peça bem menor</strong>, permitindo um crescimento real e contínuo.</p>
-                        <p class="text-justify"><i data-lucide="sparkles" class="inline w-5 h-5 mr-2 highlight-accent"></i><strong>Preços de IA:</strong> O valor aqui não é por hora, mas pelo resultado. A IA aumenta muito a eficiência e o impacto, por isso <strong class="highlight-accent">cada projeto com IA é orçado individualmente</strong>.</p>
+                        {/* Language Toggles */}
+                        <div className="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+                            {Object.keys(languages).map((lang) => (
+                                <button
+                                    key={lang}
+                                    onClick={() => { setGlobalLang(lang); setShowAllLangs(false); }}
+                                    className={`px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                                        globalLang === lang && !showAllLangs
+                                            ? 'bg-indigo-600 text-white shadow-md'
+                                            : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                    }`}
+                                >
+                                    {languages[lang].flag} <span className="hidden sm:inline">{languages[lang].label}</span>
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Mode Toggles */}
+                        <div className="flex gap-2 w-full md:w-auto">
+                           
+                            {/* Contact Pedro Button */}
+                            <button
+                                onClick={() => setShowContactModal(true)}
+                                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-bold bg-green-500 hover:bg-green-600 text-white transition-all shadow-sm"
+                            >
+                                <Phone size={18} /> <span className="hidden sm:inline">Call Pedro</span>
+                            </button>
+
+                           {/* Show All Langs Toggle */}
+                            <button
+                                onClick={() => setShowAllLangs(!showAllLangs)}
+                                className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-bold border transition-all ${
+                                    showAllLangs
+                                        ? 'bg-slate-800 text-white border-slate-800 ring-2 ring-slate-300'
+                                        : 'bg-white dark:bg-gray-700 text-slate-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'
+                                }`}
+                            >
+                                {showAllLangs ? <EyeOff size={18} /> : <Eye size={18} />}
+                                <span className="hidden sm:inline">{showAllLangs ? "Hide" : "View All"}</span>
+                            </button>
+
+                            {/* Dark Mode Toggle */}
+                            <button 
+                                onClick={() => setDarkMode(!darkMode)}
+                                className="p-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-yellow-400 transition-colors"
+                            >
+                                {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+                            </button>
+
+                            <button onClick={() => window.print()} className="p-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200">
+                                <Printer size={20} />
+                            </button>
+                        </div>
+                    </div>
+                    
+                     {/* Tab Toggles */}
+                    <div className="max-w-4xl mx-auto mt-3 flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+                        <button
+                            onClick={() => setActiveTab('plan')}
+                            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-bold transition-all ${
+                                activeTab === 'plan' ? 'bg-rose-500 text-white shadow' : 'text-gray-600 dark:text-gray-300'
+                            }`}
+                        >
+                            <FileText size={16} /> Birth Plan
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('bag')}
+                            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-bold transition-all ${
+                                activeTab === 'bag' ? 'bg-teal-500 text-white shadow' : 'text-gray-600 dark:text-gray-300'
+                            }`}
+                        >
+                            <CheckSquare size={16} /> Bag Checklist
+                        </button>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-                    <div class="bg-gray-50 rounded-2xl p-8 flex flex-col h-full shadow-md border border-gray-200">
-                        <div class="flex-grow">
-                            <h3 class="text-2xl font-bold text-gray-900 mb-2">Serviços Individuais</h3>
-                            <p class="text-gray-600 mb-8">Para necessidades pontuais.</p>
-                            <ul class="space-y-5 text-gray-700">
-                                <li class="flex flex-col sm:flex-row items-start sm:items-center justify-between"><div class="flex items-center mb-1 sm:mb-0"><i data-lucide="image" class="w-5 h-5 mr-3 highlight-accent"></i><span>Flyer Digital / Cartaz</span></div><div class="flex items-baseline space-x-4 pl-8 sm:pl-0"><span class="font-semibold text-gray-800">€50</span><span class="font-semibold highlight-accent">€80 <span class="text-xs font-normal text-gray-500">(c/ IA)</span></span></div></li>
-                                <li class="flex flex-col sm:flex-row items-start sm:items-center justify-between"><div class="flex items-center mb-1 sm:mb-0"><i data-lucide="layout-grid" class="w-5 h-5 mr-3 highlight-accent"></i><span>Gráfico para Post</span></div><div class="flex items-baseline space-x-4 pl-8 sm:pl-0"><span class="font-semibold text-gray-800">€40</span><span class="font-semibold highlight-accent">€65 <span class="text-xs font-normal text-gray-500">(c/ IA)</span></span></div></li>
-                                <li class="flex flex-col sm:flex-row items-start sm:items-center justify-between"><div class="flex items-center mb-1 sm:mb-0"><i data-lucide="clapperboard" class="w-5 h-5 mr-3 highlight-accent"></i><span>Reel / Story (Edição)</span></div><div class="flex items-baseline space-x-4 pl-8 sm:pl-0"><span class="font-semibold text-gray-800">€100</span><span class="font-semibold highlight-accent">€160 <span class="text-xs font-normal text-gray-500">(c/ IA)</span></span></div></li>
-                                <li class="flex flex-col sm:flex-row items-start sm:items-center justify-between"><div class="flex items-center mb-1 sm:mb-0"><i data-lucide="pen-square" class="w-5 h-5 mr-3 highlight-accent"></i><span>Apresentação (5 slides)</span></div><div class="flex items-baseline space-x-4 pl-8 sm:pl-0"><span class="font-semibold text-gray-800">€150</span><span class="font-semibold highlight-accent">€220 <span class="text-xs font-normal text-gray-500">(c/ IA)</span></span></div></li>
-                                <li class="pt-4 border-t border-gray-200">
-                                    <div class="flex items-center mb-2"><i data-lucide="film" class="w-5 h-5 mr-3 highlight-accent"></i><span class="font-semibold">Flyer Animado</span></div>
-                                    <div class="pl-8 text-sm space-y-1">
-                                        <p class="flex justify-between"><span>Padrão:</span> <span class="font-semibold text-gray-800">€90</span></p>
-                                        <p class="flex justify-between"><span>Premium (c/ IA):</span> <span class="font-semibold highlight-accent">€120</span></p>
-                                    </div>
-                                </li>
-                                 <li class="pt-4 border-t border-gray-200">
-                                    <div class="flex items-center mb-2"><i data-lucide="video" class="w-5 h-5 mr-3 highlight-accent"></i><span class="font-semibold">Vídeo Promocional</span></div>
-                                    <div class="pl-8 text-sm space-y-1">
-                                        <p class="flex justify-between"><span>Essencial (Stock):</span> <span class="font-semibold text-gray-800">€120</span></p>
-                                        <p class="flex justify-between"><span>Destaque (Stock):</span> <span class="font-semibold text-gray-800">€200</span></p>
-                                        <p class="flex justify-between"><span>Impacto Total (Stock):</span> <span class="font-semibold text-gray-800">€320</span></p>
-                                        <p class="flex justify-between mt-2 pt-2 border-t"><span>Premium (c/ IA):</span> <span class="font-semibold highlight-accent">a partir de €180</span></p>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                        <a href="https://wa.me/+35677544172" target="_blank" rel="noopener noreferrer" class="mt-8 block w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 rounded-lg transition-colors text-center">Solicitar Peça</a>
-                    </div>
+                {/* --- CONTENT AREA --- */}
+                <div className="p-4 sm:p-8 max-w-4xl mx-auto bg-white dark:bg-gray-800 min-h-screen shadow-lg mt-4 sm:rounded-xl transition-colors duration-300 print:shadow-none print:mt-0 print:p-0">
 
-                    <div class="bg-gray-50 rounded-2xl p-8 flex flex-col h-full shadow-md border border-gray-200">
-                        <div class="flex-grow">
-                            <div class="flex justify-between items-center mb-2"><h3 class="text-2xl font-bold text-gray-900">Pacotes Pontuais</h3><span class="bg-emerald-100 highlight-accent text-xs font-bold px-3 py-1 rounded-full">ECONOMIA</span></div>
-                            <p class="text-gray-600 mb-8">Para projetos específicos, com economia.</p>
-                            <div class="space-y-6">
-                                <div class="bg-white border border-gray-200 p-4 rounded-lg"><h4 class="font-bold text-lg text-gray-900">Kit de Evento</h4><p class="text-sm text-gray-600 mb-2">1 Flyer + 4 Gráficos.</p><p class="text-2xl font-bold">€180 <span class="text-base font-normal text-gray-500 line-through">€210</span></p></div>
-                                <div class="bg-white border border-gray-200 p-4 rounded-lg"><h4 class="font-bold text-lg text-gray-900">Lançamento de Atleta</h4><p class="text-sm text-gray-600 mb-2">1 Gráfico + 3 Posts + 1 Reel.</p><p class="text-2xl font-bold">€220 <span class="text-base font-normal text-gray-500 line-through">~€270</span></p></div>
-                                <div class="bg-white border border-gray-200 p-4 rounded-lg"><h4 class="font-bold text-lg text-gray-900">Impulso de Conteúdo</h4><p class="text-sm text-gray-600 mb-2">5 Posts + 2 Reels/Stories.</p><p class="text-2xl font-bold">€350 <span class="text-base font-normal text-gray-500 line-through">€400</span></p></div>
-                            </div>
+                    {/* HEADER */}
+                    <div className="text-center mb-8 border-b-2 border-gray-100 dark:border-gray-700 pb-6 print:border-b-2 print:border-black">
+                        <h1 className="text-2xl sm:text-3xl font-black text-indigo-900 dark:text-indigo-100 mb-3 tracking-wide uppercase leading-tight print:text-black">
+                            BIRTH PLAN <span className="text-rose-400 mx-1">•</span> PLANO DE PARTO <span className="text-rose-400 mx-1">•</span> PJAN TAT-TWELID
+                        </h1>
+                        <h2 className="text-lg text-gray-600 dark:text-gray-300 font-semibold mb-1">
+                            {headerData.names}
+                        </h2>
+                        <div className="inline-block bg-indigo-50 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-100 px-4 py-1 rounded-full text-sm font-bold mb-4 mt-2 print:border print:border-gray-300">
+                            {headerData.dueDate[globalLang]}
                         </div>
-                        <a href="https://wa.me/+35677544172" target="_blank" rel="noopener noreferrer" class="mt-8 block w-full button-accent text-white font-semibold py-3 rounded-lg transition-colors text-center">Escolher Pacote</a>
-                    </div>
-
-                    <div class="bg-gray-50 rounded-2xl p-8 flex flex-col h-full border-2 border-emerald-600 shadow-2xl shadow-emerald-600/10">
-                        <div class="flex-grow">
-                            <div class="flex justify-between items-center mb-2"><h3 class="text-2xl font-bold text-gray-900">Parceria Trimestral</h3><span class="bg-emerald-100 highlight-accent text-xs font-bold px-3 py-1 rounded-full">MÁXIMA VANTAGEM</span></div>
-                            <p class="text-gray-600 mb-8">Para crescer sem parar, com o melhor resultado.</p>
-                            <div class="mb-8"><p class="text-4xl font-black text-gray-900">€1.200<span class="text-xl font-semibold text-gray-500">/mês</span></p><p class="text-gray-600 font-semibold">Investimento trimestral: €3.600</p></div>
-                            <ul class="space-y-4 text-gray-700">
-                                <li class="flex items-start"><i data-lucide="package-check" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i><span><span class="font-semibold text-gray-900">Até 45 peças de conteúdo</span> por trimestre.</span></li>
-                                <li class="flex items-start"><i data-lucide="bar-chart-3" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i><span><span class="font-semibold text-gray-900">Gestão estratégica completa</span>.</span></li>
-                                <li class="flex items-start"><i data-lucide="sparkles" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i><span>Conteúdo <span class="font-semibold text-gray-900">Padrão e Premium (c/ IA)</span> incluído.</span></li>
-                                <li class="flex items-start"><i data-lucide="clipboard-list" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i><span><span class="font-semibold text-gray-900">Relatórios mensais</span> de desempenho.</span></li>
-                                <li class="flex items-start"><i data-lucide="package-x" class="w-5 h-5 mr-3 text-amber-600 flex-shrink-0 mt-1"></i><span class="text-sm text-amber-600">As peças não solicitadas <strong>não são reembolsáveis nem acumuláveis</strong>.</span></li>
-                            </ul>
-                        </div>
-                        <a href="https://wa.me/+35677544172" target="_blank" rel="noopener noreferrer" class="mt-8 block w-full button-accent text-white font-semibold py-3 rounded-lg transition-colors text-center">Iniciar Parceria</a>
-                    </div>
-                </div>
-
-                <div class="mt-12">
-                    <div class="text-center">
-                        <h2 class="text-3xl font-bold text-gray-900 mb-4">Comparador</h2>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <div class="min-w-full inline-block align-middle">
-                            <div class="border rounded-lg shadow overflow-hidden">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Funcionalidade</th>
-                                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Serviços Individuais</th>
-                                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Pacotes Pontuais</th>
-                                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-emerald-50 text-emerald-800">Parceria Trimestral</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Ideal Para</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">Necessidades pontuais</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">Objetivos específicos</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center font-semibold">Crescimento contínuo</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Vantagem Principal</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">Flexibilidade</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">Economia (15-20%)</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center font-semibold">Máxima vantagem</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Gestão Estratégica</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-center"><i data-lucide="x-circle" class="w-5 h-5 text-red-500 mx-auto"></i></td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-center"><i data-lucide="x-circle" class="w-5 h-5 text-red-500 mx-auto"></i></td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-center"><i data-lucide="check-circle-2" class="w-5 h-5 highlight-accent mx-auto"></i></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Relatórios e Análise</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-center"><i data-lucide="x-circle" class="w-5 h-5 text-red-500 mx-auto"></i></td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-center"><i data-lucide="x-circle" class="w-5 h-5 text-red-500 mx-auto"></i></td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-center"><i data-lucide="check-circle-2" class="w-5 h-5 highlight-accent mx-auto"></i></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Flexibilidade de Conteúdo</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">Peça a peça</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">Limitado ao pacote</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center font-semibold">Mix total até 45 peças</td>
-                                        </tr>
-                                         <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Custo Médio por Peça</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">Padrão</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">Reduzido</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center font-semibold">O menor custo</td>
-                                        </tr>
-                                        <tr class="bg-gray-50">
-                                            <td class="px-6 py-4"></td>
-                                            <td class="px-6 py-4 text-center"><a href="https://wa.me/+35677544172" target="_blank" rel="noopener noreferrer" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors">Solicitar Peça</a></td>
-                                            <td class="px-6 py-4 text-center"><a href="https://wa.me/+35677544172" target="_blank" rel="noopener noreferrer" class="button-accent text-white font-semibold py-2 px-4 rounded-lg transition-colors">Escolher Pacote</a></td>
-                                            <td class="px-6 py-4 text-center"><a href="https://wa.me/+35677544172" target="_blank" rel="noopener noreferrer" class="button-accent text-white font-semibold py-2 px-4 rounded-lg transition-colors">Iniciar Parceria</a></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="mb-16 bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
-            <h2 class="text-3xl font-bold text-center text-gray-900 uppercase mb-8">Conclusão</h2>
-            <div class="max-w-4xl mx-auto space-y-6">
-                <div class="bg-emerald-50 border-2 border-emerald-200 p-6 rounded-xl">
-                    <p class="text-lg font-semibold text-gray-900 text-center">👉 A Parceria Trimestral (€1.200/mês) é o <span class="highlight-accent">sweet spot</span>:</p>
-                    <ul class="mt-4 space-y-3 list-disc list-inside text-gray-700">
-                        <li>Dá <span class="font-semibold">flexibilidade total</span> no mix de até 45 peças por trimestre.</li>
-                        <li><span class="font-semibold">Reduz o custo médio por peça para ~€80</span>, incluindo conteúdo premium com IA.</li>
-                        <li><span class="font-semibold">Inclui gestão estratégica completa</span>, relatórios e acompanhamento contínuo.</li>
-                        <li>Mantém o investimento acessível, entregando performance profissional.</li>
-                    </ul>
-                </div>
-                <div class="bg-gray-100 p-6 rounded-lg">
-                    <p class="text-lg font-bold text-center">📌 Ou seja, Hugo:</p>
-                    <p class="mt-4 text-gray-700 text-justify">Se o seu objetivo é crescer de forma consistente, manter presença contínua e ter flexibilidade no tipo de conteúdo produzido, a Parceria Trimestral é a opção mais adequada.</p>
-                    <p class="mt-2 text-gray-700 text-justify">Ela garante o equilíbrio entre volume, qualidade e custo, permitindo consolidar suas duas marcas, como agente esportivo e como personal trainer, com uma estratégia clara e sustentável.</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="mt-16 text-center">
-            <div class="bg-white border border-gray-200 rounded-2xl p-8 max-w-4xl mx-auto shadow-lg">
-                <h2 class="text-3xl font-bold text-gray-900 mb-4">Próximos Passos</h2>
-                <p class="text-gray-600 mb-8 text-justify">Este é um convite para uma parceria de sucesso. Os próximos passos são simples:</p>
-                <div class="flex flex-col md:flex-row justify-center items-center gap-8">
-                    <div class="text-center"><div class="bg-emerald-100 highlight-accent rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-2">1</div><p class="font-semibold text-gray-900">Rever e Selecionar</p></div>
-                    <div class="text-center"><div class="bg-emerald-100 highlight-accent rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-2">2</div><p class="font-semibold text-gray-900">Formalizar a Parceria</p></div>
-                    <div class="text-center"><div class="bg-emerald-100 highlight-accent rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-2">3</div><p class="font-semibold text-gray-900">Onboarding e Kick-off</p></div>
-                </div>
-            </div>
-        </section>
-
-        <div class="mt-16">
-             <div class="bg-white border border-gray-200 rounded-2xl p-8 max-w-4xl mx-auto shadow-lg">
-                <h3 class="font-bold text-xl text-center text-gray-900 mb-6">Termos da Parceria & Pagamento</h3>
-                <ul class="space-y-4 text-gray-700">
-                    <li class="flex items-start">
-                        <i data-lucide="credit-card" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i>
-                        <div>
-                            <span class="font-semibold">Pagamento:</span> Para projetos individuais ou pacotes, é solicitado um sinal de 50%. Para uma <span class="font-semibold">avença</span>, o pagamento é antecipado (no início de cada trimestre, até o 5° dia útil do período).
-                        </div>
-                    </li>
-                    <li class="flex items-start">
-                        <i data-lucide="repeat" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i>
-                        <div>
-                            <span class="font-semibold">Revisões:</span> Cada peça de conteúdo inclui até 2 rodadas de revisões. Revisões adicionais serão orçamentadas à parte.
-                        </div>
-                    </li>
-                    <li class="flex items-start">
-                        <i data-lucide="clock" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i>
-                        <div>
-                            <span class="font-semibold">Prazos de Urgência:</span> Entregas em 24h ou 48h têm taxa de urgência de 50% e 25%, respectivamente.
-                        </div>
-                    </li>
-                    <li class="flex items-start">
-                        <i data-lucide="shield-x" class="w-5 h-5 mr-3 highlight-accent flex-shrink-0 mt-1"></i>
-                        <div>
-                            <span class="font-semibold">Cancelamento:</span> Se um projeto for cancelado após o início, será aplicada uma taxa de 50% do valor total para cobrir o trabalho já realizado.
-                        </div>
-                    </li>
-                </ul>
-             </div>
-        </div>
-
-        <div class="mt-8 text-center">
-            <div class="bg-white border border-gray-200 rounded-2xl p-8 max-w-4xl mx-auto shadow-lg">
-                <div class="flex flex-col md:flex-row items-center text-center md:text-left">
-                    <i data-lucide="info" class="w-12 h-12 md:w-16 md:h-16 highlight-accent flex-shrink-0 mb-4 md:mb-0 md-mr-6"></i>
-                    <div>
-                        <h3 class="font-bold text-xl text-gray-900">Fornecimento de Material</h3>
-                        <p class="text-gray-600 mt-2 text-justify">
-                            Para garantir a qualidade e os prazos de vídeos (Reels, Stories, etc.), é fundamental que você envie o material bruto (fotos e vídeos) com pelo menos <strong>duas semanas</strong> de antecedência. Esse tempo é essencial para o processo criativo e de edição.
+                        
+                        <p className="text-gray-500 dark:text-gray-400 italic max-w-2xl mx-auto text-sm">
+                            {showAllLangs ? headerData.intro.en : headerData.intro[globalLang]}
                         </p>
                     </div>
+
+                    {/* --- BIRTH PLAN TAB --- */}
+                    {activeTab === 'plan' && (
+                        <div className="space-y-6">
+
+                            {/* CRITICAL ALERT BOX */}
+                            <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm print:border-2 print:border-red-500 print:bg-white">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <AlertTriangle className="text-red-600 dark:text-red-400" />
+                                    <h3 className="font-bold text-red-800 dark:text-red-200 uppercase">
+                                        {showAllLangs ? "⚠️ CRITICAL COMMUNICATION / COMUNICAÇÃO" : criticalData.title[globalLang]}
+                                    </h3>
+                                </div>
+                                <div className="space-y-3">
+                                    {criticalData.items.map((item) => (
+                                        <PlanItem key={item.id} item={item} />
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* PLAN SECTIONS */}
+                            <div className={showAllLangs ? "grid gap-8" : "grid gap-6"}>
+                                {birthPlanSections.map((section, idx) => (
+                                    <div key={idx} className={`rounded-xl ${
+                                        showAllLangs 
+                                            ? 'print:border-t-2 print:border-black pt-4' 
+                                            : 'bg-white dark:bg-gray-800 p-5 shadow-sm border border-gray-200 dark:border-gray-700'
+                                    }`}>
+                                        <div className="flex items-center gap-3 mb-4 border-b dark:border-gray-700 pb-2">
+                                            {section.icon}
+                                            <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+                                                {showAllLangs
+                                                    ? `${section.title.en} / ${section.title.pt}`
+                                                    : section.title[globalLang]}
+                                            </h2>
+                                        </div>
+                                        <div className="space-y-2">
+                                            {section.items.map((item) => (
+                                                <PlanItem key={item.id} item={item} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* FOOTER */}
+                            <div className="mt-12 text-center p-8 bg-indigo-50 dark:bg-gray-700/50 rounded-xl print:bg-white print:border-t">
+                                <span className="text-4xl text-rose-400 font-serif block mb-4">✿</span>
+                                <p className="text-lg font-medium text-indigo-900 dark:text-indigo-100">
+                                    {globalLang === 'en' && "Thank you for helping us bring Flora safely into the world!"}
+                                    {globalLang === 'pt' && "Obrigado por nos ajudarem a trazer a Flora ao mundo com segurança!"}
+                                    {globalLang === 'mt' && "Grazzi talli għentuna nġibu lil Flora fid-dinja b'sigurtà!"}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* --- BAG CHECKLIST TAB --- */}
+                    {activeTab === 'bag' && (
+                        <div className="space-y-6 animate-in fade-in duration-300">
+                            {!showAllLangs && (
+                                <div className="bg-teal-50 dark:bg-teal-900/20 border-l-4 border-teal-500 p-4 rounded-r-lg mb-6 no-print">
+                                    <p className="text-teal-800 dark:text-teal-200 font-medium">
+                                        {globalLang === 'pt'
+                                            ? "Checklist Interativo: Clique nas caixas para marcar o que já foi guardado."
+                                            : "Interactive Checklist: Click the boxes to mark items as packed."}
+                                    </p>
+                                </div>
+                            )}
+
+                            <div className="grid md:grid-cols-2 gap-6">
+                                {packingListSections.map((section, idx) => (
+                                    <div key={idx} className={`bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 ${idx === 2 ? 'md:col-span-2' : ''} print:border`}>
+                                        <h2 className="text-lg font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                                            {idx === 0 ? <Baby size={20} className="text-teal-500" /> : idx === 1 ? <User size={20} className="text-rose-500" /> : <CheckSquare size={20} className="text-indigo-500" />}
+                                            {showAllLangs ? `${section.title.en} / ${section.title.pt}` : section.title[globalLang] || section.title.en}
+                                        </h2>
+                                        <div className="space-y-3">
+                                            {section.items.map((item) => (
+                                                <div
+                                                    key={item.id}
+                                                    onClick={() => toggleCheck(item.id)}
+                                                    className="flex items-start gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer group"
+                                                >
+                                                    <div className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center transition-colors ${checkedItems[item.id] ? 'bg-teal-500 border-teal-500 text-white' : 'border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-700'
+                                                        }`}>
+                                                        {checkedItems[item.id] && <CheckSquare size={14} />}
+                                                    </div>
+                                                    <div className={`${checkedItems[item.id] ? 'opacity-50 line-through' : 'opacity-100'}`}>
+                                                        <p className="font-medium text-sm text-gray-800 dark:text-gray-200">{item.label}</p>
+                                                        {item.sub && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{item.sub}</p>}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
-        </div>
+        );
+    };
 
-        <div class="mt-16 text-center">
-            <a href="https://wa.me/+35677544172" target="_blank" rel="noopener noreferrer" class="inline-block button-accent text-white font-bold py-4 px-10 rounded-lg transition-colors text-center text-xl shadow-lg">
-                Estou Pronto!
-            </a>
-        </div>
+    ReactDOM.createRoot(document.getElementById('root')).render(<BirthPlanApp />);
+</script>
 
-    </div>
-
-    <script>
-        lucide.createIcons();
-    </script>
 </body>
 </html>
