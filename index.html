@@ -26,9 +26,9 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <style>
-        /* Smooth transition for text scaling */
+        /* Smooth transition for text scaling and width changes */
         .dynamic-text-sizing * {
-            transition: font-size 0.2s ease-out, line-height 0.2s ease-out;
+            transition: font-size 0.2s ease-out, line-height 0.2s ease-out, max-width 0.3s ease-out;
         }
         @media print {
             .no-print { display: none !important; }
@@ -40,6 +40,14 @@
             .dark .bg-gray-900 { background-color: white !important; }
             .dark .text-white { color: black !important; }
             .dark .bg-gray-800 { background-color: white !important; border: 1px solid #ddd !important; }
+            
+            /* FORCE FULL WIDTH ON PRINT */
+            .print-full-width {
+                max-width: none !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
         }
     </style>
 </head>
@@ -74,6 +82,7 @@
     const X = (props) => <IconWrapper {...props}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></IconWrapper>;
     const MessageCircle = (props) => <IconWrapper {...props}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></IconWrapper>;
     const Hospital = (props) => <IconWrapper {...props}><path d="M12 6V2H8"/><path d="m8 8-2.21 1.46a4 4 0 0 0-1.8 3.18L4 22h16l.01-9.36a4 4 0 0 0-1.8-3.18L16 8"/><path d="M12 12v4"/><path d="M10 14h4"/></IconWrapper>;
+    const PenTool = (props) => <IconWrapper {...props}><path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="m2 2 7.586 7.586"/><circle cx="11" cy="11" r="2"/></IconWrapper>;
 
     const BirthPlanApp = () => {
         const [globalLang, setGlobalLang] = useState('en');
@@ -83,6 +92,15 @@
         const [darkMode, setDarkMode] = useState(false);
         const [showContactModal, setShowContactModal] = useState(false);
         const [textScale, setTextScale] = useState(1); // 1 = 100%
+
+        // Calculate dynamic container width class based on textScale
+        const getContainerWidthClass = () => {
+            if (textScale <= 1.1) return "max-w-4xl";
+            if (textScale <= 1.4) return "max-w-5xl";
+            return "max-w-6xl"; // Very wide for large text
+        };
+        
+        const containerWidthClass = getContainerWidthClass();
 
         const PEDRO_PHONE = "+35677544172";
         const PEDRO_WHATSAPP = "35677544172";
@@ -255,6 +273,32 @@
                 ]
             }
         ];
+        
+        const registryData = [
+            {
+                title: { en: "Location & Deadline", pt: "Local e Prazo", mt: "Post u Skadenza" },
+                items: [
+                    { id: 'reg_1', en: "Mater Dei Hospital (Level 0, near Blood Donation).", pt: "Hospital Mater Dei (Piso 0, perto da Doação de Sangue).", mt: "L-Isptar Mater Dei (Livell 0, ħdejn id-Donazzjoni tad-Demm)." },
+                    { id: 'reg_2', en: "Time: Mon-Fri 07:30 - 14:00 (Sat sometimes).", pt: "Horário: Seg-Sex 07:30 - 14:00 (Sáb às vezes).", mt: "Ħin: Tne-Ġim 07:30 - 14:00." },
+                    { id: 'reg_3', en: "Deadline: 15 days after birth.", pt: "Prazo: 15 dias após o nascimento.", mt: "Skadenza: 15-il jum wara t-twelid." }
+                ]
+            },
+            {
+                title: { en: "Documents Needed", pt: "Documentos Necessários", mt: "Dokumenti Meħtieġa" },
+                items: [
+                    { id: 'reg_4', en: "Notification of Birth (Provided by Hospital/Midwife).", pt: "Notificação de Nascimento (Hospital fornece).", mt: "Notifika tat-Twelid (Ipprovduta mill-Isptar)." },
+                    { id: 'reg_5', en: "IDs (Maltese/EU) & Passports (Both parents).", pt: "IDs (Malta/UE) e Passaportes (Ambos os pais).", mt: "IDs (Maltin/UE) u Passaporti." },
+                    { id: 'reg_6', en: "Marriage Certificate (Multilingual copy recommended).", pt: "Certidão de Casamento (Cópia multilíngue recomendada).", mt: "Ċertifikat taż-Żwieġ." }
+                ]
+            },
+             {
+                title: { en: "Details & Extras", pt: "Detalhes e Extras", mt: "Dettalji u Ekstra" },
+                items: [
+                    { id: 'reg_7', en: "Grandparents' full names & professions.", pt: "Nomes completos e profissões dos avós.", mt: "Ismijiet u professjonijiet tan-nanniet." },
+                    { id: 'reg_8', en: "Blue Card & Pen.", pt: "Cartão Azul e Caneta.", mt: "Blue Card u Pinna." }
+                ]
+            }
+        ];
 
         // --- COMPONENTS ---
 
@@ -361,8 +405,8 @@
                 {showContactModal && <ContactModal />}
 
                 {/* --- TOP BAR (NO PRINT) --- */}
-                <div className="sticky top-0 bg-white dark:bg-gray-800 shadow-md p-3 z-50 no-print transition-colors duration-300">
-                    <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+                <div className={`sticky top-0 bg-white dark:bg-gray-800 shadow-md p-3 z-50 no-print transition-colors duration-300`}>
+                    <div className={`${containerWidthClass} mx-auto flex flex-col md:flex-row justify-between items-center gap-3 transition-all duration-300`}>
 
                         {/* Language Toggles */}
                         <div className="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
@@ -439,7 +483,7 @@
                     </div>
                     
                      {/* Tab Toggles */}
-                    <div className="max-w-4xl mx-auto mt-3 flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+                    <div className={`${containerWidthClass} mx-auto mt-3 flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg transition-all duration-300`}>
                         <button
                             onClick={() => setActiveTab('plan')}
                             className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-bold transition-all ${
@@ -456,11 +500,19 @@
                         >
                             <CheckSquare size={16} /> Bag Checklist
                         </button>
+                        <button
+                            onClick={() => setActiveTab('registry')}
+                            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-bold transition-all ${
+                                activeTab === 'registry' ? 'bg-amber-500 text-white shadow' : 'text-gray-600 dark:text-gray-300'
+                            }`}
+                        >
+                            <PenTool size={16} /> Registration
+                        </button>
                     </div>
                 </div>
 
                 {/* --- CONTENT AREA --- */}
-                <div className="p-4 sm:p-8 max-w-4xl mx-auto bg-white dark:bg-gray-800 min-h-screen shadow-lg mt-4 sm:rounded-xl transition-colors duration-300 print:shadow-none print:mt-0 print:p-0">
+                <div className={`p-4 sm:p-8 ${containerWidthClass} mx-auto bg-white dark:bg-gray-800 min-h-screen shadow-lg mt-4 sm:rounded-xl transition-all duration-300 print:shadow-none print:mt-0 print:p-0 print-full-width`}>
 
                     {/* HEADER */}
                     <div className="text-center mb-8 border-b-2 border-gray-100 dark:border-gray-700 pb-6 print:border-b-2 print:border-black">
@@ -571,6 +623,37 @@
                                                         {item.sub && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{item.sub}</p>}
                                                     </div>
                                                 </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    
+                    {/* --- REGISTRATION TAB --- */}
+                    {activeTab === 'registry' && (
+                        <div className="space-y-6 animate-in fade-in duration-300">
+                             {!showAllLangs && (
+                                <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-4 rounded-r-lg mb-6 no-print">
+                                    <p className="text-amber-800 dark:text-amber-200 font-medium">
+                                        {globalLang === 'pt'
+                                            ? "Registro Civil: Informações essenciais para registrar a Flora."
+                                            : "Civil Registration: Essential information for registering Flora."}
+                                    </p>
+                                </div>
+                            )}
+                            
+                             <div className="grid gap-6">
+                                {registryData.map((section, idx) => (
+                                    <div key={idx} className={`bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 print:border`}>
+                                        <h2 className="text-lg font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                                            <PenTool size={20} className="text-amber-500" />
+                                            {showAllLangs ? `${section.title.en} / ${section.title.pt}` : section.title[globalLang] || section.title.en}
+                                        </h2>
+                                        <div className="space-y-3">
+                                            {section.items.map((item) => (
+                                                <PlanItem key={item.id} item={item} />
                                             ))}
                                         </div>
                                     </div>
